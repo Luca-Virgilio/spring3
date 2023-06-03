@@ -1,1 +1,1 @@
-create table customer (id serial primary key, name varchar(255) not null);
+create table  IF NOT EXISTS customer (id serial primary key, name varchar(255) not null);
