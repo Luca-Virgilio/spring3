@@ -2,6 +2,8 @@ package com.example.spring3.controller;
 
 import com.example.spring3.controller.dto.Customer;
 import com.example.spring3.service.CustomerService;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +17,13 @@ import java.util.List;
 public class CustomerController {
 
     @Autowired
-    CustomerService customerService;
+    private CustomerService customerService;
+
+    private final ObservationRegistry observationRegistry;
+
+    public CustomerController(ObservationRegistry observationRegistry) {
+        this.observationRegistry = observationRegistry;
+    }
 
     @GetMapping("/all")
     List<Customer> getAllCustomers(){
@@ -24,7 +32,9 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     Customer getCustomerById(Integer id){
-        return customerService.getCustomerById(id);
+        return Observation.createNotStarted("by-id", this.observationRegistry)
+                        .observe(() -> customerService.getCustomerById(id));
+
     }
 
     @GetMapping("/find")
